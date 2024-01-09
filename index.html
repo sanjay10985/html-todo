@@ -7,12 +7,18 @@
 </head>
 <body>
     <h1>Todo App</h1>
-    <input type="text" id="text">
+    <input type="text" id="text" onkeydown="handleKeyPress(event)">
     <button onclick="sendTodo()">send</button>
     <br><br>
     <div id="todoContainer"></div>
 </body>
 <script>
+   function handleKeyPress(e){
+    if(e.keyCode === 13){
+        sendTodo();
+    }
+
+    }
     // GET THE DATA FROM FILE
     var todoContainer = document.getElementById("todoContainer");
     function getTodo(){
@@ -47,6 +53,10 @@
     // SEND THE DATA TO FILE AND TO FRONTEND
     function sendTodo(){
         const todo = document.getElementById('text').value;
+        if(todo == ""){
+            alert("add some text yaar");
+            return;
+        }
         fetch("http://localhost:3000/todos", {
             method: 'POST',
             body:JSON.stringify({
@@ -73,6 +83,8 @@
                     todoDiv.appendChild(deleteButton);
                     todoContainer.appendChild(todoDiv);
                 })
+                var input = document.getElementById("text");
+                    input.value =""
             })
             
     }
@@ -83,7 +95,11 @@
             method: "DELETE"
         }).then(() => {
             const child = document.getElementById(id);
-            todoContainer.removeChild(child)
+            if(child){
+            todoContainer.removeChild(child)}
+            else{
+                console.log("already deleted");
+            }
         })
     }
 
