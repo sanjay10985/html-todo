@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Todo App</h1>
+    <input type="text" id="text">
+    <button onclick="sendTodo()">send</button>
+    <br><br>
+    <div id="todoContainer"></div>
+</body>
+<script>
+    // GET THE DATA FROM FILE
+    var todoContainer = document.getElementById("todoContainer");
+    function getTodo(){
+        fetch("http://localhost:3000/todos",
+            {
+                method: 'GET'
+            }
+        ).then((res) => {
+            res.json().then((data) => {
+                console.log(data)
+                todoContainer.innerHTML=" ";
+                data.forEach(element => {
+                    var todoDiv = document.createElement("div");
+                    var todoElement = document.createElement("span");
+                    var deleteButton = document.createElement("button");
+                    console.log(element);
+                    todoElement.innerText = element.todo;
+                    deleteButton.innerText = "Delete"
+
+                    todoDiv.setAttribute("id",element);
+                    deleteButton.addEventListener("click",() =>deleteTodo(element.id));
+
+                    todoDiv.appendChild(todoElement);
+                    todoDiv.appendChild(deleteButton)
+                    todoContainer.appendChild(todoDiv);
+                });
+            })
+        })
+    }
+    getTodo()
+
+    // SEND THE DATA TO FILE AND TO FRONTEND
+    function sendTodo(){
+        const todo = document.getElementById('text').value;
+        fetch("http://localhost:3000/todos", {
+            method: 'POST',
+            body:JSON.stringify({
+                todo: todo
+            }), 
+            headers:{
+                "Content-Type": "application/json"
+            }
+        }).then((res) => {
+            res.json().then((e) => {
+                console.log(e);
+                    var todoContainer = document.getElementById("todoContainer");
+                    var todoDiv = document.createElement("div");
+                    var todoElement = document.createElement("span");
+                    var deleteButton = document.createElement("button");
+
+                    todoElement.innerHTML = e.todo;
+                    deleteButton.innerText = "Delete"
+                    todoDiv.setAttribute("id",e.id);
+                    deleteButton.addEventListener("click",() =>deleteTodo(e.id));
+
+
+                    todoDiv.appendChild(todoElement);
+                    todoDiv.appendChild(deleteButton);
+                    todoContainer.appendChild(todoDiv);
+                })
+            })
+            
+    }
+
+    //DELETE DATA FROM FILE
+    function deleteTodo(id){
+        fetch("http://localhost:3000/todos/" + id,{
+            method: "DELETE"
+        }).then(() => {
+            const child = document.getElementById(id);
+            todoContainer.removeChild(child)
+        })
+    }
+
+
+</script>
+</html>
